@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUKAR - Wallet & Topup Testing</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            background: #5568d3;
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-shop {
+            background: #28a745;
+        }
+        
+        .btn-shop:hover {
+            background: #218838;
+        }
+        
+        .response {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            display: none;
+        }
+        
+        .response.success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .response.error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        
+        .balance-display {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .balance-display h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+        
+        .balance-display .amount {
+            font-size: 2.5em;
+            font-weight: bold;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .logout-btn {
+            background: #dc3545;
+        }
+        
+        .logout-btn:hover {
+            background: #c82333;
+        }
+
+        .order-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .order-number {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .order-date {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .order-amount {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: white;
+            margin-top: 5px;
+        }
+
+        .status-paid { background: #28a745; }
+        .status-pending { background: #ffc107; }
+        .status-failed { background: #dc3545; }
+        .status-cancelled { background: #6c757d; }
+
+        .order-items-list {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .order-item-row {
+            padding: 5px 0;
+            padding-left: 10px;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .order-footer {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .transaction-item {
+            border-bottom: 1px solid #eee;
+            padding: 10px 0;
+        }
+
+        .transaction-item strong {
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 NUKAR</h1>
+            <p>Wallet & Marketplace Platform</p>
+        </div>
+
+        <!-- Auth Section -->
+        <div id="authSection">
+            <!-- Register Card -->
+            <div class="card">
+                <h2>📝 Register (Create Wallet)</h2>
+                <div class="info-box">
+                    <strong>Step 1:</strong> Daftar akun baru. Wallet otomatis dibuat dengan balance Rp 0
+                </div>
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="regEmail" placeholder="user@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="regPassword" placeholder="Minimum 6 characters" required>
+                    </div>
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="regFirstName" placeholder="John" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="regLastName" placeholder="Doe" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Phone</label>
+                        <input type="tel" id="regPhone" placeholder="+628123456789" required>
+                    </div>
+                    <button type="submit" class="btn">Register & Create Wallet</button>
+                </form>
+                <div id="registerResponse" class="response"></div>
+            </div>
+
+            <!-- Login Card -->
+            <div class="card">
+                <h2>🔐 Login</h2>
+                <div class="info-box">
+                    <strong>Step 2:</strong> Login dengan akun yang sudah dibuat
+                </div>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="loginEmail" placeholder="user@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="loginPassword" placeholder="Your password" required>
+                    </div>
+                    <button type="submit" class="btn">Login</button>
+                </form>
+                <div id="loginResponse" class="response"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" class="hidden">
+            <!-- Balance Display -->
+            <div class="card">
+                <div class="balance-display">
+                    <h3>Saldo Wallet</h3>
+                    <div class="amount" id="balanceAmount">Rp 0</div>
+                </div>
+                <button onclick="refreshBalance()" class="btn">🔄 Refresh Balance</button>
+                <button onclick="window.location.href='shop.html'" class="btn btn-shop">📚 Browse Books</button>
+                <button onclick="logout()" class="btn logout-btn">Logout</button>
+            </div>
+
+            <!-- Topup Card -->
+            <div class="card">
+                <h2>💸 Topup Wallet</h2>
+                <div class="info-box">
+                    <strong>Step 3:</strong> Isi saldo wallet (Min: Rp 10.000, Max: Rp 50.000.000)
+                </div>
+                <form id="topupForm">
+                    <div class="form-group">
+                        <label>Amount (Rp)</label>
+                        <input type="number" id="topupAmount" placeholder="100000" min="10000" max="50000000" required>
+                    </div>
+                    <button type="submit" class="btn">Topup Now</button>
+                </form>
+                <div id="topupResponse" class="response"></div>
+            </div>
+
+            <!-- Order History -->
+            <div class="card">
+                <h2>📦 Order History</h2>
+                <button onclick="loadOrders()" class="btn">Load Orders</button>
+                <div id="orderList" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- Transaction History -->
+            <div class="card">
+                <h2>📜 Wallet Transaction History</h2>
+                <button onclick="loadTransactions()" class="btn">Load Transactions</button>
+                <div id="transactionList" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let authToken = localStorage.getItem('authToken');
+        let userData = JSON.parse(localStorage.getItem('userData') || 'null');
+
+        // Initialize
+        if (authToken && userData) {
+            showDashboard();
+        }
+
+        // Register
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('regEmail').value,
+                        password: document.getElementById('regPassword').value,
+                        firstName: document.getElementById('regFirstName').value,
+                        lastName: document.getElementById('regLastName').value,
+                        mobilePhone: document.getElementById('regPhone').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('registerResponse', data, response.ok);
+
+                if (response.ok) {
+                    alert('✅ Registration successful! Please login.');
+                    document.getElementById('registerForm').reset();
+                }
+            } catch (error) {
+                showResponse('registerResponse', { error: error.message }, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Register & Create Wallet';
+            }
+        });
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: document.getElementById('loginEmail').value,
+                        password: document.getElementById('loginPassword').value
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('loginResponse', data, response.ok);
+
+                if (response.ok) {
+                    authToken = data.data.token;
+                    userData = data.data;
+                    localStorage.setItem('authToken', authToken);
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                    
+                    alert('✅ Login successful!');
+                    showDashboard();
+                }
+            } catch (error) {
+                showResponse('loginResponse', { error: error.message }, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Login';
+            }
+        });
+
+        // Topup
+        document.getElementById('topupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = 'Processing...';
+
+            try {
+                const response = await fetch(`${API_URL}/payment/topup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        amount: parseInt(document.getElementById('topupAmount').value)
+                    })
+                });
+
+                const data = await response.json();
+                showResponse('topupResponse', data, response.ok);
+
+                if (response.ok && data.data.redirectUrl) {
+                    if (confirm('✅ Payment link ready! Open Finpay payment page?')) {
+                        window.open(data.data.redirectUrl, '_blank');
+                    }
+                }
+            } catch (error) {
+                showResponse('topupResponse', { error: error.message }, false);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Topup Now';
+            }
+        });
+
+        // Refresh Balance
+        async function refreshBalance() {
+            try {
+                const response = await fetch(`${API_URL}/wallet/balance`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('balanceAmount').textContent = data.data.formattedBalance;
+                }
+            } catch (error) {
+                alert('Failed to refresh balance: ' + error.message);
+            }
+        }
+
+        // Load Orders
+        async function loadOrders() {
+            try {
+                const response = await fetch(`${API_URL}/orders/my-orders?limit=10`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const list = document.getElementById('orderList');
+                    if (data.data.orders.length === 0) {
+                        list.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No orders yet. Start shopping! 📚</p>';
+                    } else {
+                        list.innerHTML = data.data.orders.map(order => {
+                            const statusClass = {
+                                'paid': 'status-paid',
+                                'pending': 'status-pending',
+                                'failed': 'status-failed',
+                                'cancelled': 'status-cancelled'
+                            }[order.paymentStatus] || 'status-cancelled';
+                            
+                            return `
+                                <div class="order-item">
+                                    <div class="order-header">
+                                        <div>
+                                            <div class="order-number">${order.orderNumber}</div>
+                                            <div class="order-date">${new Date(order.createdAt).toLocaleString('id-ID')}</div>
+                                        </div>
+                                        <div style="text-align: right;">
+                                            <div class="order-amount">Rp ${order.totalAmount.toLocaleString('id-ID')}</div>
+                                            <span class="status-badge ${statusClass}">
+                                                ${order.paymentStatus.toUpperCase()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="order-items-list">
+                                        <strong>Items (${order.itemCount}):</strong>
+                                        ${order.items.map(item => `
+                                            <div class="order-item-row">
+                                                • ${item.title} by ${item.author} - ${item.quantity}x @ Rp ${item.price.toLocaleString('id-ID')}
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                    <div class="order-footer">
+                                        Payment Method: <strong>${order.paymentMethod === 'wallet' ? '💰 Wallet Balance' : '💳 Payment Gateway'}</strong>
+                                    </div>
+                                </div>
+                            `;
+                        }).join('');
+                    }
+                }
+            } catch (error) {
+                alert('Failed to load orders: ' + error.message);
+            }
+        }
+
+        // Load Transactions
+        async function loadTransactions() {
+            try {
+                const response = await fetch(`${API_URL}/wallet/transactions?limit=10`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    const list = document.getElementById('transactionList');
+                    if (data.data.transactions.length === 0) {
+                        list.innerHTML = '<p style="color: #999; text-align: center; padding: 20px;">No transactions yet</p>';
+                    } else {
+                        list.innerHTML = data.data.transactions.map(tx => `
+                            <div class="transaction-item">
+                                <strong>${tx.orderId}</strong><br>
+                                Type: ${tx.type} | Amount: Rp ${Math.abs(tx.amount).toLocaleString('id-ID')} ${tx.amount < 0 ? '(-)' : '(+)'}<br>
+                                Status: <span style="color: ${tx.status === 'success' ? 'green' : tx.status === 'pending' ? 'orange' : 'red'}">${tx.status}</span><br>
+                                <small>${new Date(tx.createdAt).toLocaleString('id-ID')}</small>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch (error) {
+                alert('Failed to load transactions: ' + error.message);
+            }
+        }
+
+        // Show Dashboard
+        function showDashboard() {
+            document.getElementById('authSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            refreshBalance();
+        }
+
+        // Logout
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userData');
+                localStorage.removeItem('cart');
+                authToken = null;
+                userData = null;
+                document.getElementById('authSection').classList.remove('hidden');
+                document.getElementById('dashboardSection').classList.add('hidden');
+                alert('✅ Logged out successfully');
+            }
+        }
+
+        // Show Response
+        function showResponse(elementId, data, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = `response ${isSuccess ? 'success' : 'error'}`;
+            element.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
