@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../services/api_service.dart';
 import '../theme/nukar_theme.dart';
-import 'login_screen.dart';
+import 'pin_input_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -16,7 +14,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _phoneController = TextEditingController();
   final _nameController = TextEditingController();
   final _referralController = TextEditingController();
-  final _apiService = ApiService();
   bool _isLoading = false;
 
   @override
@@ -27,136 +24,115 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  Future<void> _register() async {
+  void _continueToPin() {
     if (!_formKey.currentState!.validate()) return;
 
     FocusScope.of(context).unfocus();
-    setState(() => _isLoading = true);
 
-    final fullName = _nameController.text.trim();
-    final nameParts = fullName.split(' ');
-    final firstName = nameParts.isNotEmpty ? nameParts.first : '';
-    final lastName = nameParts.length > 1 ? nameParts.sublist(1).join(' ') : '';
-    final dummyEmail = '${_phoneController.text}@nukar.app';
-    final dummyPassword =
-        'password${DateTime.now().millisecondsSinceEpoch.toString().substring(8)}';
-
-    final result = await _apiService.register(
-      email: dummyEmail,
-      password: dummyPassword,
-      firstName: firstName,
-      lastName: lastName,
-      mobilePhone: _phoneController.text,
+    // Navigate to PIN input screen with register data
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PinInputScreen(
+          isRegister: true,
+          mobilePhone: _phoneController.text.trim(),
+          fullName: _nameController.text.trim(),
+          referralCode: _referralController.text.trim().isEmpty
+              ? null
+              : _referralController.text.trim(),
+        ),
+      ),
     );
-
-    setState(() => _isLoading = false);
-
-    if (!mounted) return;
-
-    if (result['success'] == true) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Pendaftaran berhasil! Silakan masuk.'),
-          backgroundColor: Colors.green,
-        ),
-      );
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(result['message'] ?? 'Pendaftaran gagal'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9F9),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-              decoration: const BoxDecoration(
-                color: NukarTheme.primaryGreen,
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(32),
-                  bottomRight: Radius.circular(32),
+            // Green header with "Sudah punya akun"
+            GestureDetector(
+              onTap: () => Navigator.pushNamed(context, '/login'),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                decoration: const BoxDecoration(
+                  color: NukarTheme.primaryGreen,
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(32),
+                    bottomRight: Radius.circular(32),
+                  ),
+                ),
+                child: Column(
+                  children: const [
+                    Text(
+                      'Sudah punya akun',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      color: Colors.white,
+                      size: 28,
+                    ),
+                  ],
                 ),
               ),
-              child: Column(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (_) => const LoginScreen()),
-                    ),
-                    child: Column(
-                      children: const [
-                        Text(
-                          'Sudah punya akun',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        SizedBox(height: 6),
-                        Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: Colors.white,
-                          size: 32,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
             ),
+
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(28),
-                    boxShadow: NukarTheme.softShadow(),
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Text(
-                          'Siap menikmati fitur unggulan kami?',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 22,
-                            fontWeight: FontWeight.w700,
-                            color: NukarTheme.textDark,
+                padding: const EdgeInsets.all(24),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Siap menikmati fitur\nunggulan kami?',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: NukarTheme.textDark,
+                          height: 1.3,
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Phone Input
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: Colors.grey[300]!,
+                            width: 1.5,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Isi data singkat di bawah ini dan mulai kelola transaksi dengan lebih percaya diri.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: NukarTheme.textMuted),
-                        ),
-                        const SizedBox(height: 32),
-                        TextFormField(
+                        child: TextFormField(
                           controller: _phoneController,
                           keyboardType: TextInputType.phone,
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
                           decoration: const InputDecoration(
-                            labelText: 'No HP / Whatsapp',
-                            prefixIcon: Icon(Icons.phone_rounded),
+                            hintText: 'No HP/Whatsapp',
+                            hintStyle: TextStyle(
+                              color: NukarTheme.textMuted,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 18,
+                            ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -168,13 +144,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
-                        TextFormField(
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Name Input
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: Colors.grey[300]!,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: TextFormField(
                           controller: _nameController,
                           textCapitalization: TextCapitalization.words,
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
                           decoration: const InputDecoration(
-                            labelText: 'Nama Lengkap',
-                            prefixIcon: Icon(Icons.person_outline_rounded),
+                            hintText: 'Nama Lengkap',
+                            hintStyle: TextStyle(
+                              color: NukarTheme.textMuted,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 18,
+                            ),
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
@@ -183,48 +182,78 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return null;
                           },
                         ),
-                        const SizedBox(height: 16),
-                        TextFormField(
+                      ),
+
+                      const SizedBox(height: 16),
+
+                      // Referral Input
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(30),
+                          border: Border.all(
+                            color: Colors.grey[300]!,
+                            width: 1.5,
+                          ),
+                        ),
+                        child: TextFormField(
                           controller: _referralController,
+                          style: const TextStyle(
+                            fontSize: 16,
+                          ),
                           decoration: const InputDecoration(
-                            labelText: 'Kode Referal (Opsional)',
-                            prefixIcon: Icon(Icons.card_giftcard_outlined),
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _register,
-                            child: AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 22,
-                                      width: 22,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 3,
-                                        color: Colors.white,
-                                      ),
-                                    )
-                                  : const Text('Daftar Sekarang'),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        GestureDetector(
-                          onTap: () {},
-                          child: const Text(
-                            'Saya menyetujui Syarat & Ketentuan yang berlaku.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
+                            hintText: 'Kode Referal (Optional)',
+                            hintStyle: TextStyle(
                               color: NukarTheme.textMuted,
-                              fontSize: 12,
+                            ),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 18,
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Daftar Sekarang Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _continueToPin,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: NukarTheme.accentOrange,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: const Text(
+                            'Daftar Sekarang',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 32),
+
+                      // Terms text
+                      const Text(
+                        'Saya menyetujui Syarat & Ketentuan\nyang berlaku',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: NukarTheme.textDark,
+                          fontSize: 13,
+                          height: 1.5,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),

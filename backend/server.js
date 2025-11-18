@@ -7,8 +7,6 @@ const bodyParser = require('body-parser');
 const authRoutes = require('./src/routes/auth');
 const walletRoutes = require('./src/routes/wallet');
 const paymentRoutes = require('./src/routes/payment');
-const productRoutes = require('./src/routes/product');
-const orderRoutes = require('./src/routes/order');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -31,8 +29,6 @@ app.use(express.static('public'));
 app.use('/api/auth', authRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/payment', paymentRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -1,27 +1,31 @@
 class User {
   final int id;
-  final String email;
-  final String firstName;
-  final String lastName;
   final String mobilePhone;
+  final String fullName;
+  final String? referralCode;
 
   User({
     required this.id,
-    required this.email,
-    required this.firstName,
-    required this.lastName,
     required this.mobilePhone,
+    required this.fullName,
+    this.referralCode,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
-      email: json['email'],
-      firstName: json['firstName'] ?? json['first_name'] ?? '',
-      lastName: json['lastName'] ?? json['last_name'] ?? '',
       mobilePhone: json['mobilePhone'] ?? json['mobile_phone'] ?? '',
+      fullName: json['fullName'] ?? json['full_name'] ?? '',
+      referralCode: json['referralCode'] ?? json['referral_code'],
     );
   }
 
-  String get fullName => '$firstName $lastName';
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'mobilePhone': mobilePhone,
+      'fullName': fullName,
+      'referralCode': referralCode,
+    };
+  }
 }

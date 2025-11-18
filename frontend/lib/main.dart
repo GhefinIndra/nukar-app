@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/welcome_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/register_screen.dart';
 import 'theme/nukar_theme.dart';
 
 void main() {
@@ -15,7 +17,12 @@ class MyApp extends StatelessWidget {
       title: 'NUKAR',
       debugShowCheckedModeBanner: false,
       theme: NukarTheme.appTheme(),
-      home: const WelcomeScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const WelcomeScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/register': (context) => const RegisterScreen(),
+      },
     );
   }
 }
